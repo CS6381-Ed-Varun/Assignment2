@@ -1,8 +1,5 @@
 # CS6381 Assignment2
 
-
-# CS6381 Programming Assignment #1
-
 ## Overview
 In this assignment we will build upon the PUB/SUB model supported by the ZeroMQ (ZMQ) middleware. 
 One of the downsides of ZMQ’s approach is that there is no anonymity between publishers and subscribers. 
