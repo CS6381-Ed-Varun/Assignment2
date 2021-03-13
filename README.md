@@ -1,13 +1,7 @@
 # CS6381 Assignment2
 
 ## Overview
-In this assignment we will build upon the PUB/SUB model supported by the ZeroMQ (ZMQ) middleware. 
-One of the downsides of ZMQ’s approach is that there is no anonymity between publishers and subscribers. 
-A subscriber needs to know where the publisher is (i.e., subscriber must explicitly connect to a publisher using its IP address and port). 
-So, we lose some degree of decoupling with such an approach (recall the time, space, and synchronization decoupling that we studied). 
-A more desirable solution is where application logic of the publishers and subscribers remains anonymous to each other; 
-naturally something else will still need to maintain the association. 
-This entity is the pub-sub middleware, which is the focus of this assignment. 
+In this assignment we will build upon the PUB/SUB middleware from Assignment 1. In order to create a more AVAILABLE system we have used Zookeeper impliment broker redundancy through the use of leader elections.
 
 | Simple Broker Latency                                                                                                    | Complex Broker Latency                                                                                                     | Simple Flooding Latency                                                                                                      | Complex Flooding Latency                                                                                                       |
 |--------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
