@@ -154,25 +154,25 @@ class listener(Thread):
 #initializing the individual pubs, sub, and listener
 def main():
 
-	s1 = subscriber('MSFT', True)
+	s1 = subscriber('MSFT', True, '127.0.0.1')
 	s1.start()
 
-	s2 = subscriber('AAPL', True)
+	s2 = subscriber('AAPL', True, '127.0.0.1')
 	s2.start()
 
-	s3 = subscriber('IBM', True)
+	s3 = subscriber('IBM', True, '127.0.0.1')
 	s3.start()
 
-	p1 = publisher(1, True)
+	p1 = publisher(1, True, '127.0.0.1')
 	p1.start()
 
-	p2 = publisher(2, True)
+	p2 = publisher(2, True, '127.0.0.1')
 	p2.start()
 
-	p3 = publisher(3, True)
+	p3 = publisher(3, True, '127.0.0.1')
 	p3.start()
 
-	l1 = listener(True)
+	l1 = listener(True, '127.0.0.1')
 	l1.start()
 
 	sleep(2)
