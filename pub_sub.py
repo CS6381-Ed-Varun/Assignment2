@@ -7,7 +7,7 @@ from kazoo.client import KazooClient
 from kazoo.client import KazooState
 import logging
 
-#logging required by zookeeper
+#logging required by zookeeper -ignore
 logging.basicConfig()
 
 class subscriber(Thread):
@@ -17,53 +17,61 @@ class subscriber(Thread):
 		self.topic = topic
 		self.flood = flood
 		self.joined = True
+		
+		#connect to the socket like normal. self.sub = our sub socket
 		self.context = zmq.Context()
 		self.sub = self.context.socket(zmq.SUB)
 		self.sub.setsockopt_string(zmq.SUBSCRIBE, self.topic)
 
-		#zk initializing
+		#initializing zookeeper
 		self.path = '/leader/node'
+		#setting the broker ip which is 'known' so we can use it as an input
 		self.broker = broker_add
+		#where zk is hosted - change local host part as needed and port 2181 comes from the config file
 		self.zk_object = KazooClient(hosts='127.0.0.1:2181')
 		self.zk_object.start()
 		
-		
+		#flooding connection
 		if self.flood == True:
 			for i in range(1,6):
 				port = str(5558 + i)
 				self.sub.connect("tcp://127.0.0.1:" + port)
+		#connecting tp the broker using zookeeper node on leader broker
 		else:
-			data, stat = self.zk_object.get(self.path)
-			data = str(data)
-			addr = data.split(",")
-			addr[1] = addr[1][:-1]
+			data, stat = self.zk_object.get(self.path) #get port #'s from the leader's zk node
+			data = str(data) 
+			addr = data.split(",")  #type casting since path is bytes and strings are needed for connect
+			addr[1] = addr[1][:-1]   #removing a ' from the byte -> string cast
 			print("tcp://" + self.broker + ":" + addr[1])	
-			self.sub.connect("tcp://" + self.broker + ":" + addr[1])
+			self.sub.connect("tcp://" + self.broker + ":" + addr[1]) #connecting to thre xsub
 
 	def run(self):
 		print('starting sub ' + self.topic)
 		while self.joined:
+			#setting our zk watch on the broker node
 			@self.zk_object.DataWatch(self.path)
-			def watch_node(data, stat, event):
+			def watch_node(data, stat, event): 
+				#required to allow us to check the type lower down
 				if event != None:	
-					#if broker fails - restart self + reconnect
+					#if anything happens to the znode: close the connections, sleep, and then reconnect using new leader ports
 					if event.type == "CHANGED":
 						self.sub.close()
-						self.connext.term()
+						self.context.term()
 						time.sleep(2)
 						self.context = zmq.Context()
 						self.sub = self.context.socket(zmq.SUB)
 						#reconnect to broker
 						data, stat = self.zk_object.get(self.path)
 						data = str(data)
-						addr = data.split(",")
+						addr = data.split(",") #same type casting as above for bytes -> string
 						addr[1] = addr[1][:-1]
 						self.sub.connect("tcp://" + self.broker + ":" + addr[1])
 
 			string = self.sub.recv()
 			topic, messagedata = string.split()
 			print (topic, messagedata)
-
+			
+	#for leaving - same as assignment1
 	def close(self):
 		self.sub.close()
 		print('sub ' + self.topic + ' leaving')
@@ -76,21 +84,24 @@ class publisher(Thread):
 		self.flood = flood
 		self.joined = True
 
-		#connect to the lead broker and start zk watch
+		#connect to the lead broker and start zk watch. 
 		self.broker = broker_add
 		self.path = '/leader/node'
+		#port from zk config file, host ip should be changed
 		self.zk_object = KazooClient(hosts='127.0.0.1:2181')
 		self.zk_object.start()
-
+		
+		#flooding approach
 		self.context = zmq.Context()
 		self.pub = self.context.socket(zmq.PUB)
 		if self.flood == True:
 			self.pub.bind("tcp://127.0.0.1:" + str(5558 + self.id))
+		#broker approach 
 		else:
 			data, stat = self.zk_object.get(self.path)
-			data = str(data)
-			addr = data.split(",")
-			addr[0] = addr[0][2:]
+			data = str(data) #casting from bytes -> string 
+			addr = data.split(",") 
+			addr[0] = addr[0][2:] #getting the xpub port and removing the " b' " from casting from byte to string
 			print("tcp://" + self.broker + ":" + addr[0])
 			self.pub.connect("tcp://" + self.broker + ":" + addr[0])
 
@@ -105,9 +116,10 @@ class publisher(Thread):
 		print(self.pub)
 		while self.joined:
 
-			#watch for leader change
+			#set-up the znode watch to see if a broker goes down
 			@self.zk_object.DataWatch(self.path)
 			def watch_node(data, stat, event):
+				#required check so we can look at type 
 				if event != None:	
 				#if broker fails - restart self + reconnect
 					if event.type == "CHANGED":
@@ -116,6 +128,7 @@ class publisher(Thread):
 						time.sleep(2)
 						self.context = zmq.Context()
 						self.pub = self.context.socket(zmq.PUB)
+						#same recasting + connection as above
 						data, stat = self.zk_object.get(self.path)
 						data = str(data)
 						addr = data.split(",")
@@ -133,6 +146,8 @@ class publisher(Thread):
 		print('pub leaving')
 
 class listener(Thread):
+	
+	# ED NEEDS TO ADD ZooKeeper functionality here !!!! Not ready
 	
 	#init self
 	def __init__(self, flood):
@@ -165,7 +180,7 @@ class listener(Thread):
 			
 #initializing the individual pubs, sub, and listener
 def main():
-
+        
 	s1 = subscriber('MSFT', False, '127.0.0.1')
 	s1.start()
 
@@ -174,7 +189,8 @@ def main():
 
 	s3 = subscriber('IBM', False, '127.0.0.1')
 	s3.start()
-
+	
+	#we may want to pre-set the stock in a refactor since we'll need a known topic for Assignment 3
 	p1 = publisher(1, False, '127.0.0.1')
 	p1.start()
 
