@@ -102,7 +102,7 @@ class publisher(Thread):
 		stock_list = ["GOOG", "AAPL", "MSFT", "IBM", "AMD", "CLII", "EXO", "NFLX", "CME", "CKA"]
 		index = random.randrange(1,10)
 		ticker = stock_list[index]
-
+		print(self.pub)
 		while self.joined:
 
 			#watch for leader change
@@ -183,8 +183,6 @@ def main():
 
 	p3 = publisher(3, False, '127.0.0.1')
 	p3.start()
-
-	p3.close()
 
 if __name__ == "__main__":
     main()
