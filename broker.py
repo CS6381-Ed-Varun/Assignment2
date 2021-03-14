@@ -95,20 +95,21 @@ class broker:
 				front_url = "tcp://*:" + addr[0]
 				back_url = "tcp://*:" + addr[1]
 				#re-elect leader if node is gone
-				if event.type == "DELETED":
-					self.election = self.zk_object.Election(self.path, "leader")
-					potential_leaders = self.election.contenders()
-					self.leader = potential_leaders[-1].encode('latin-1')
-					#reset node
-					self.zk_object.set(self.leader_node, self.leader)
+				if event != None:
+					if event.type == "DELETED":
+						self.election = self.zk_object.Election(self.path, "leader")
+						potential_leaders = self.election.contenders()
+						self.leader = potential_leaders[-1].encode('latin-1')
+						#reset node
+						self.zk_object.set(self.leader_node, self.leader)
 
-					#unbind + re-bind broker ports
-					self.frontend.unbind(front_url)
-					self.backend.unbind(back_url)
-					self.frontend.bind("tcp://*:" + addr[0])
-					self.backend.bind("tcp://*:" + addr[1])
+						#unbind + re-bind broker ports
+						self.frontend.unbind(front_url)
+						self.backend.unbind(back_url)
+						self.frontend.bind("tcp://*:" + addr[0])
+						self.backend.bind("tcp://*:" + addr[1])
 
-			election.run(self.device)
+			self.election.run(self.device)
 
 if __name__ == "__main__":
     broker = broker()
