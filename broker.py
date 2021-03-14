@@ -92,6 +92,7 @@ class broker:
 			def watch_node(data, stat, event):
 				#url's for unbinding later
 				addr = self.leader.split(",")
+				addr = str(addr)
 				front_url = "tcp://*:" + addr[0]
 				back_url = "tcp://*:" + addr[1]
 				#re-elect leader if node is gone
@@ -99,7 +100,7 @@ class broker:
 					if event.type == "DELETED":
 						self.election = self.zk_object.Election(self.path, "leader")
 						potential_leaders = self.election.contenders()
-						self.leader = potential_leaders[-1].encode('latin-1')
+						self.leader = str(potential_leaders[-1])
 						#reset node
 						self.zk_object.set(self.leader_node, self.leader)
 
