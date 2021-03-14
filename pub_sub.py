@@ -34,7 +34,10 @@ class subscriber(Thread):
 				self.sub.connect("tcp://127.0.0.1:" + port)
 		else:
 			data, stat = self.zk_object.get(self.path)
+			data = str(data)
 			addr = data.split(",")
+			addr[1] = addr[1][:-1]
+			print("tcp://" + self.broker + ":" + addr[1])	
 			self.sub.connect("tcp://" + self.broker + ":" + addr[1])
 
 	def run(self):
@@ -60,7 +63,7 @@ class subscriber(Thread):
 			print (topic, messagedata)
 
 	def close(self):
-		self.socket.close()
+		self.sub.close()
 		print('sub ' + self.topic + ' leaving')
 
 class publisher(Thread):
@@ -83,7 +86,10 @@ class publisher(Thread):
 			self.pub.bind("tcp://127.0.0.1:" + str(5558 + self.id))
 		else:
 			data, stat = self.zk_object.get(self.path)
+			data = str(data)
 			addr = data.split(",")
+			addr[0] = addr[0][2:]
+			print("tcp://" + self.broker + ":" + addr[0])
 			self.pub.connect("tcp://" + self.broker + ":" + addr[0])
 
 
@@ -119,7 +125,7 @@ class publisher(Thread):
 			time.sleep(1)
 
 	def close(self):
-		self.socket.close()
+		self.pub.close()
 		print('pub leaving')
 
 class listener(Thread):
@@ -156,26 +162,25 @@ class listener(Thread):
 #initializing the individual pubs, sub, and listener
 def main():
 
-	s1 = subscriber('MSFT', True, '127.0.0.1')
+	s1 = subscriber('MSFT', False, '127.0.0.1')
 	s1.start()
 
-	s2 = subscriber('AAPL', True, '127.0.0.1')
+	s2 = subscriber('AAPL', False, '127.0.0.1')
 	s2.start()
 
-	s3 = subscriber('IBM', True, '127.0.0.1')
+	s3 = subscriber('IBM', False, '127.0.0.1')
 	s3.start()
 
-	p1 = publisher(1, True, '127.0.0.1')
+	p1 = publisher(1, False, '127.0.0.1')
 	p1.start()
 
-	p2 = publisher(2, True, '127.0.0.1')
+	p2 = publisher(2, False, '127.0.0.1')
 	p2.start()
 
-	p3 = publisher(3, True, '127.0.0.1')
+	p3 = publisher(3, False, '127.0.0.1')
 	p3.start()
 
-	sleep(2)
-	p3.leave()
+	p3.close()
 
 if __name__ == "__main__":
     main()
