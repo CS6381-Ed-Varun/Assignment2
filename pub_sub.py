@@ -42,17 +42,18 @@ class subscriber(Thread):
 		while self.joined:
 			@self.zk_object.DataWatch(self.path)
 			def watch_node(data, stat, event):
-				#if broker fails - restart self + reconnect
-				if event.type == "CHANGED":
-					self.sub.close()
-					self.connext.term()
-					time.sleep(2)
-					self.context = zmq.Context()
-					self.sub = self.context.socket(zmq.SUB)
-					#reconnect to broker
-					data, stat = self.zk_object.get(self.path)
-					addr = data.split(",")
-					self.sub.connect("tcp://" + self.broker + ":" + addr[1])
+				if event != None:	
+					#if broker fails - restart self + reconnect
+					if event.type == "CHANGED":
+						self.sub.close()
+						self.connext.term()
+						time.sleep(2)
+						self.context = zmq.Context()
+						self.sub = self.context.socket(zmq.SUB)
+						#reconnect to broker
+						data, stat = self.zk_object.get(self.path)
+						addr = data.split(",")
+						self.sub.connect("tcp://" + self.broker + ":" + addr[1])
 
 			string = self.sub.recv()
 			topic, messagedata = string.split()
@@ -79,7 +80,7 @@ class publisher(Thread):
 		self.context = zmq.Context()
 		self.pub = self.context.socket(zmq.PUB)
 		if self.flood == True:
-			pub.bind("tcp://127.0.0.1:" + str(5558 + self.id))
+			self.pub.bind("tcp://127.0.0.1:" + str(5558 + self.id))
 		else:
 			data, stat = self.zk_object.get(self.path)
 			addr = data.split(",")
@@ -99,21 +100,22 @@ class publisher(Thread):
 			#watch for leader change
 			@self.zk_object.DataWatch(self.path)
 			def watch_node(data, stat, event):
+				if event != None:	
 				#if broker fails - restart self + reconnect
-				if event.type == "CHANGED":
-					self.pub.close()
-					self.context.term()
-					time.sleep(2)
-					self.context = zmq.Context()
-					self.pub = self.context.socket(zmq.PUB)
-					data, stat = self.zk_object.get(self.path)
-					addr = data.split(",")
-					self.pub.connect("tcp://" + self.broker + ":" + addr[0])
+					if event.type == "CHANGED":
+						self.pub.close()
+						self.context.term()
+						time.sleep(2)
+						self.context = zmq.Context()
+						self.pub = self.context.socket(zmq.PUB)
+						data, stat = self.zk_object.get(self.path)
+						addr = data.split(",")
+						self.pub.connect("tcp://" + self.broker + ":" + addr[0])
 
 			#generate a random price
 			price = str(random.randrange(20, 60))
 			#send ticker + price to broker
-			pub.send_string("%s %s" % (ticker, price))
+			self.pub.send_string("%s %s" % (ticker, price))
 			time.sleep(1)
 
 	def close(self):
@@ -171,9 +173,6 @@ def main():
 
 	p3 = publisher(3, True, '127.0.0.1')
 	p3.start()
-
-	l1 = listener(True, '127.0.0.1')
-	l1.start()
 
 	sleep(2)
 	p3.leave()
