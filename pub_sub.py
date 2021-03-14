@@ -55,7 +55,9 @@ class subscriber(Thread):
 						self.sub = self.context.socket(zmq.SUB)
 						#reconnect to broker
 						data, stat = self.zk_object.get(self.path)
+						data = str(data)
 						addr = data.split(",")
+						addr[1] = addr[1][:-1]
 						self.sub.connect("tcp://" + self.broker + ":" + addr[1])
 
 			string = self.sub.recv()
@@ -115,7 +117,9 @@ class publisher(Thread):
 						self.context = zmq.Context()
 						self.pub = self.context.socket(zmq.PUB)
 						data, stat = self.zk_object.get(self.path)
+						data = str(data)
 						addr = data.split(",")
+						addr[0] = addr[0][2:]
 						self.pub.connect("tcp://" + self.broker + ":" + addr[0])
 
 			#generate a random price
