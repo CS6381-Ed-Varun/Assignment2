@@ -6,7 +6,7 @@ import time
 import threading
 import zmq
 from random import randrange
-
+from ansible.module_utils._text import to_bytes
 from kazoo.client import KazooClient
 from kazoo.client import KazooState
 import logging
@@ -24,7 +24,7 @@ class broker:
 		#zookeeper nodes
 		self.zk_object = KazooClient(hosts='127.0.0.1:2181')
 		self.zk_object.start()
-		self.path = '/home'
+		self.path = '/home/'
 
 		#znode for each broker
 		node1 = self.path + "broker1"
@@ -34,7 +34,7 @@ class broker:
 			#make sure the path exists
 			self.zk_object.ensure_path(self.path)
 			#create the znode with port info for the pubs + subs to use in addr[]
-			self.zk_object.create(node1, "5555,5556")
+			self.zk_object.create(node1, to_bytes("5555,5556"))
 
 		#znode2 (same w/ modified port #'s')
 		node2 = self.path + "broker2"
@@ -44,22 +44,22 @@ class broker:
 			#make sure the path exists
 			self.zk_object.ensure_path(self.path)
 			#create the znode with port info for the pubs + subs to use in addr[]
-			self.zk_object.create(node1, "5557,5558")
+			self.zk_object.create(node2, to_bytes("5557,5558"))
 
 		#znode 3
 		node3 = self.path + "broker3"
-		if self.zk_object.exists(node2):
+		if self.zk_object.exists(node3):
 			pass
 		else:
 			#make sure the path exists
 			self.zk_object.ensure_path(self.path)
 			#create the znode with port info for the pubs + subs to use in addr[]
-			self.zk_object.create(node1, "5559,5560")
+			self.zk_object.create(node3, to_bytes("5559,5560"))
 
 		#leader election among brokers (1st time)
 		self.election = self.zk_object.Election(self.path, "leader")
 		potential_leaders = self.election.contenders()
-		self.leader = potential_leaders[0].encode('latin-1')
+		self.leader = str(potential_leaders[-1])
 		print("Leader ports: " + self.leader)
 
 		#use port #'s from the leader to finish connecting the proxy'
@@ -79,7 +79,7 @@ class broker:
 			self.zk_object.create(self.leader_node, ephemeral = True)
 
 		#setting
-		self.zk_object.set(self.leader_node, self.leader)
+		self.zk_object.set(self.leader_node, to_bytes(self.leader))
 
 	def device(self):
 		#start the proxy
@@ -98,7 +98,7 @@ class broker:
 				if event.type == "DELETED":
 					self.election = self.zk_object.Election(self.path, "leader")
 					potential_leaders = self.election.contenders()
-					self.leader = potential_leaders[0].encode('latin-1')
+					self.leader = potential_leaders[-1].encode('latin-1')
 					#reset node
 					self.zk_object.set(self.leader_node, self.leader)
 
