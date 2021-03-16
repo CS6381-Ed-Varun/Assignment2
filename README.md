@@ -10,7 +10,7 @@ In this assignment we will build upon the PUB/SUB middleware from Assignment 1. 
 ## Manual Installation
 
 ### Dependencies
-- Java: apt-get install openjdk-9-jre-headless
+- Java: sudo apt-get install openjdk-9-jre-headless
 - libtools: sudo apt-get install libtool
 - Zookeeper: http://www.gtlib.gatech.edu/pub/apache/zookeeper/ <br/>
       -Uncompress: tar xvzf zookeeper-'version'.tar.gz
