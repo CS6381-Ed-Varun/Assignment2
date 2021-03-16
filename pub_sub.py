@@ -73,7 +73,7 @@ class subscriber(Thread):
 			
 	#for leaving - same as assignment1
 	def close(self):
-		self.sub.close()
+		self.sub.close(0)
 		print('sub ' + self.topic + ' leaving')
 
 class publisher(Thread):
@@ -199,6 +199,8 @@ def main():
 
 	p3 = publisher(3, False, '127.0.0.1')
 	p3.start()
+
+	p3.close()
 
 if __name__ == "__main__":
     main()
