@@ -7,24 +7,15 @@ In this assignment we will build upon the PUB/SUB middleware from Assignment 1. 
 |--------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | ![simple_broker](https://github.com/edmasters/single_broker_pub_sub/blob/automated-local-host/results/simple_broker.png) | ![complex_broker](https://github.com/edmasters/single_broker_pub_sub/blob/automated-local-host/results/complex_broker.png) | ![simple flooding](https://github.com/edmasters/single_broker_pub_sub/blob/automated-local-host/results/simple_flooding.png) | ![complex flooding](https://github.com/edmasters/single_broker_pub_sub/blob/automated-local-host/results/complex_flooding.png) |
 
-## Installation
-Activate the Python Environment Variables:
-```bash
-source env/bin/activate
-```
-
-To deactivate the Python Environment Variables:
-```bash
-deactivate
-```
-
 ## Manual Installation
 
 ### Dependencies
 - Java: apt-get install openjdk-9-jre-headless
+- libtools: sudo apt-get install libtool
 - Zookeeper: http://www.gtlib.gatech.edu/pub/apache/zookeeper/ <br/>
       -Uncompress: tar xvzf zookeeper-'version'.tar.gz
 - Kazoo: pip install python3 Kazoo
+
 
 ## Before running the scripts
 
@@ -85,6 +76,3 @@ mininet> h5 python3 ./middleware/publisher.py 5 MSFT False &
 mininet> h6 python3 ./middleware/publisher.py 6 NFLX False &
 mininet> h7 python3 ./middleware/listener.py False &
 ```
-
-## Rubric
-
