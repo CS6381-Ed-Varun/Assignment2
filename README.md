@@ -22,14 +22,16 @@ deactivate
 
 ### Dependencies
 - Java: apt-get install openjdk-9-jre-headless
-- Zookeeper: http://www.gtlib.gatech.edu/pub/apache/zookeeper/
-       - Uncompress: tar xvzf zookeeper-'version'.tar.gz
+- Zookeeper: http://www.gtlib.gatech.edu/pub/apache/zookeeper/ <br/>
+      -Uncompress: tar xvzf zookeeper-'version'.tar.gz
 - Kazoo: pip install python3 Kazoo
 
 ## Before running the scripts
 
 - Start the ZooKeeper server
-```sudo bin/zkServer.sh start```
+```
+sudo bin/zkServer.sh start
+```
 
 
 ## Mininet Emulation
