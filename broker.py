@@ -64,8 +64,8 @@ class broker:
 
 		#use port #'s from the leader to finish connecting the proxy'
 		addr = self.leader.split(",") 
-		self.frontend.bind("tcp://*:" + addr[0])  #will want to modify ip as usual
-		self.backend.bind("tcp://*:" + addr[1])
+		self.frontend.bind("tcp://127.0.0.1:" + addr[0])  #will want to modify ip as usual
+		self.backend.bind("tcp://127.0.0.1:" + addr[1])
 
 		#set-up znode for the newly minted leader
 		self.watch_dir = self.path + self.leader 
@@ -93,8 +93,8 @@ class broker:
 			def watch_node(data, stat, event):
 				#url's for unbinding before the information is lost
 				addr = self.leader.split(",")
-				front_url = "tcp://*:" + addr[0]
-				back_url = "tcp://*:" + addr[1]
+				front_url = "tcp://127.0.0.1:" + addr[0]
+				back_url = "tcp://127.0.0.1:" + addr[1]
 				
 				#re-elect if the znode (and thus by proxy - the broker) dies
 				if event != None:
@@ -110,8 +110,8 @@ class broker:
 						addr = self.leader.split(",")
 						self.frontend.unbind(front_url)
 						self.backend.unbind(back_url)
-						self.frontend.bind("tcp://*:" + addr[0])
-						self.backend.bind("tcp://*:" + addr[1])
+						self.frontend.bind("tcp://127.0.0.1:" + addr[0])
+						self.backend.bind("tcp://127.0.0.1:" + addr[1])
 			# starts broker
 			self.election.run(self.device)
 
