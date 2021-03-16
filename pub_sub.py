@@ -78,11 +78,12 @@ class subscriber(Thread):
 
 class publisher(Thread):
 
-	def __init__(self, id, flood, broker_add):
+	def __init__(self, id, flood, topic, broker_add):
 		super().__init__()
 		self.id = id
 		self.flood = flood
 		self.joined = True
+		self.topic = topic
 
 		#connect to the lead broker and start zk watch. 
 		self.broker = broker_add
@@ -108,12 +109,8 @@ class publisher(Thread):
 
 
 	def run(self):
-		print('starting publisher number ' + str(self.id))
+		print('starting publisher ' + topic)
 		#select a stock
-		stock_list = ["GOOG", "AAPL", "MSFT", "IBM", "AMD", "CLII", "EXO", "NFLX", "CME", "CKA"]
-		index = random.randrange(1,10)
-		ticker = stock_list[index]
-		print(self.pub)
 		while self.joined:
 
 			#set-up the znode watch to see if a broker goes down
@@ -138,7 +135,7 @@ class publisher(Thread):
 			#generate a random price
 			price = str(random.randrange(20, 60))
 			#send ticker + price to broker
-			self.pub.send_string("%s %s" % (ticker, price))
+			self.pub.send_string("%s %s" % (self.topic, price))
 			time.sleep(1)
 
 	def close(self):
@@ -223,13 +220,13 @@ def main():
 	s3.start()
 	
 	#we may want to pre-set the stock in a refactor since we'll need a known topic for Assignment 3
-	p1 = publisher(1, False, '127.0.0.1')
+	p1 = publisher(1, False, 'MSFT', '127.0.0.1')
 	p1.start()
 
-	p2 = publisher(2, False, '127.0.0.1')
+	p2 = publisher(2, False, 'AAPL', '127.0.0.1')
 	p2.start()
 
-	p3 = publisher(3, False, '127.0.0.1')
+	p3 = publisher(3, False, 'IBM', '127.0.0.1')
 	p3.start()
 
 	p3.close()
