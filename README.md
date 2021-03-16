@@ -18,25 +18,20 @@ To deactivate the Python Environment Variables:
 deactivate
 ```
 
-Manual installation: 
-```bash
-git clone https://github.com/edmasters/single_broker_pub_sub.git
-cd single_broker_pub-sub
-```
+## Manual Installation
 
-If you have `pip` installed, then
-```bash
-pip install -e .
-```
+### Dependencies
+- Java: apt-get install openjdk-9-jre-headless
+- Zookeeper: http://www.gtlib.gatech.edu/pub/apache/zookeeper/
+       - Uncompress: tar xvzf zookeeper-'version'.tar.gz
+- Kazoo: pip install python3 Kazoo
 
-If you do not have `pip`, then
-```bash
-python setup.py install
-```
-Activate the Python Environment Variables:
-```bash
-source env/bin/activate
-```
+## Before running the scripts
+
+- Start the ZooKeeper server
+```sudo bin/zkServer.sh start```
+
+
 ## Mininet Emulation
 Assign the various hosts as either publisher or subscriber. 
 Subsequently, passing the parameters for the stock ticker and API method will generate the connections.
