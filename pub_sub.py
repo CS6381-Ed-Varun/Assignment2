@@ -109,7 +109,7 @@ class publisher(Thread):
 
 
 	def run(self):
-		print('starting publisher ' + topic)
+		print('starting publisher ' + self.topic)
 		#select a stock
 		while self.joined:
 
