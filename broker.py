@@ -57,8 +57,7 @@ class broker:
             self.zk_object.create(node3, to_bytes("5559,5560"))
 
         # Select a leader for the first time
-        self.election = self.zk_object.Election(self.path,
-                                                "leader")  # requirements is the '/home/' (self.path) location in hierarchy, named leader
+        self.election = self.zk_object.Election(self.path, "leader")  # requirements is the '/home/' (self.path) location in hierarchy, named leader
         potential_leaders = self.election.contenders()  # create a list of broker znodes
         self.leader = str(potential_leaders[-1])  # always select last one (arbitrary but simple process)
         print("Leader ports: " + self.leader)
