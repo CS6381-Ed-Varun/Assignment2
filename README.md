@@ -10,20 +10,34 @@ In this assignment we will build upon the PUB/SUB middleware from Assignment 1. 
 ## Manual Installation
 
 ### Dependencies
-- Java: sudo apt-get install openjdk-9-jre-headless
-- libtools: sudo apt-get install libtool
-- Zookeeper: http://www.gtlib.gatech.edu/pub/apache/zookeeper/ <br/>
-      -Uncompress: tar xvzf zookeeper-'version'.tar.gz
-- Kazoo: pip install python3 Kazoo
-
+- Java:
+```
+$ sudo apt-get install openjdk-9-jre-headless
+```
+- Libtools:
+```
+$ sudo apt-get install libtool
+```
+- Zookeeper:
+```
+$ sudo wget https://downloads.apache.org/zookeeper/stable/apache-zookeeper-3.6.2.tar.gz
+```
+- Uncompress: 
+```
+$ sudo tar xvzf apache-zookeeper-3.6.2.tar.gz
+```
+- Kazoo: 
+```
+$ pip install kazoo
+```
 
 ## Before running the scripts
 
-- Start the ZooKeeper server
+- Start the ZooKeeper server (Identify config directory)
 ```
-sudo bin/zkServer.sh start
+sudo bin/zkServer.sh start ./conf/zoo.cfg
 ```
-
+Note: Be sure to stop any instances of ZooKeeper before running again
 
 ## Mininet Emulation
 Assign the various hosts as either publisher or subscriber. 

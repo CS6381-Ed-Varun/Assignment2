@@ -4,6 +4,7 @@ from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
+from mininet.clean import cleanup
 from mininet.cli import CLI
 import time
 
@@ -65,9 +66,8 @@ def simpleTest():
 	net.pingAll()
 	print("Pinging Test Complete")
 
-
 	h1 = net.hosts[0]
-	h1.setIP('h1', '127.0.0.1', 8)
+	#h1.setIP('h1', '127.0.0.1', 8)
 	#h1 = net.__getitem__('h1')
 	print("h1 acquired")
 	#TODO: Get the damn host to accept the shell commands to programmatically emulate
@@ -192,10 +192,14 @@ def complexFloodTest():
 	net.stop()
 
 if __name__=='__main__':
-	# Tell mininet to print useful information
+	#Tell mininet to print useful information
 	setLogLevel('info')
-	#Test
+	##Test
+
+	#Context Management
+	##Cleanup previous runs
+	cleanup()
 	simpleTest()
 
 	#Production
-	#simpleBrokerTest()
+	##simpleBrokerTest()
