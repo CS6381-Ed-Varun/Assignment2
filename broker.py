@@ -13,7 +13,7 @@ import logging
 logging.basicConfig()
 
 
-class broker:
+class Broker:
 
     def __init__(self):
         # setting up proxy sockets
@@ -24,8 +24,8 @@ class broker:
         # Connecting to zookeeper - 2181 from config, ip should/can be changed
         self.zk_object = KazooClient(hosts='127.0.0.1:2181')
         self.zk_object.start()
+        # self.path = '/home/gourumv/zoo/data/'
         self.path = '/home/'
-
         # creating a znode + path for each broker. We need these for elections and to monitor if it becomes leader
         node1 = self.path + "broker1"
         if self.zk_object.exists(node1):
@@ -34,7 +34,8 @@ class broker:
             # create the file path since zookeeper is file structured.
             self.zk_object.ensure_path(self.path)
             # create the znode with port info for the pubs + subs to use to find the broker sockets. This is 'data' field used in pub + sub
-            self.zk_object.create(node1, to_bytes("5555,5556"))
+            self.zk_object.create(node1, to_bytes("5555,5556"), makepath=True)
+            print("Node 1 path created")
 
         # znode2 (same w/ modified port #'s')
         node2 = self.path + "broker2"
@@ -44,7 +45,7 @@ class broker:
             # make sure the path exists
             self.zk_object.ensure_path(self.path)
             # create the znode with port info for the pubs + subs to use in addr[]
-            self.zk_object.create(node2, to_bytes("5557,5558"))
+            self.zk_object.create(node2, to_bytes("5557,5558"), makepath=True)
 
         # znode 3 (same as above 2/ modified ports)
         node3 = self.path + "broker3"
@@ -54,15 +55,13 @@ class broker:
             # make sure the path exists
             self.zk_object.ensure_path(self.path)
             # create the znode with port info for the pubs + subs to use in addr[]
-            self.zk_object.create(node3, to_bytes("5559,5560"))
+            self.zk_object.create(node3, to_bytes("5559,5560"), makepath=True)
 
         # Select a leader for the first time
-        self.election = self.zk_object.Election(self.path,
-                                                "leader")  # requirements is the '/home/' (self.path) location in hierarchy, named leader
+        self.election = self.zk_object.Election(self.path, "leader") # requirements is the '/home/' (self.path) location in hierarchy, named leader
         potential_leaders = self.election.contenders()  # create a list of broker znodes
         self.leader = str(potential_leaders[-1])  # always select last one (arbitrary but simple process)
         print("Leader ports: " + self.leader)
-
         # use port #'s from the leader to finish connecting the proxy'
         addr = self.leader.split(",")
         self.frontend.bind("tcp://127.0.0.1:" + addr[0])  # will want to modify ip as usual
@@ -114,11 +113,9 @@ class broker:
                         self.backend.unbind(back_url)
                         self.frontend.bind("tcp://127.0.0.1:" + addr[0])
                         self.backend.bind("tcp://127.0.0.1:" + addr[1])
-
             # starts broker
             self.election.run(self.device)
 
-
 if __name__ == "__main__":
-    broker = broker()
+    broker = Broker()
     broker.monitor()
