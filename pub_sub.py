@@ -35,7 +35,7 @@ class subscriber(Thread):
 		#flooding connection
 		if self.flood == True:
 			for i in range(1,6):
-				port = str(5558 + i)
+				port = str(5560 + i)
 				self.sub.connect("tcp://127.0.0.1:" + port)
 		#connecting tp the broker using zookeeper node on leader broker
 		else:
@@ -102,7 +102,7 @@ class publisher(Thread):
 		self.context = zmq.Context()
 		self.pub = self.context.socket(zmq.PUB)
 		if self.flood == True:
-			self.pub.bind("tcp://127.0.0.1:" + str(5558 + self.id))
+			self.pub.bind("tcp://127.0.0.1:" + str(5560 + self.id))
 		#broker approach 
 		else:
 			data, stat = self.zk_object.get(self.path)
@@ -174,7 +174,7 @@ class listener(Thread):
 		#Flooding version - connect to all pub networks w/o a filter
 		if self.flood == True: 
 			for i in range(1,8):
-				port = str(5558 + i)
+				port = str(5560 + i)
 				sub.connect("tcp://127.0.0.1:" + port)
 				sub.setsockopt_string(zmq.SUBSCRIBE, "")
 		#Broker version - connect w/o filtering
