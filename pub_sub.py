@@ -3,6 +3,7 @@ import zmq
 from threading import Thread
 import random
 import time
+import datetime
 from kazoo.client import KazooClient
 from kazoo.client import KazooState
 import logging
@@ -68,8 +69,13 @@ class subscriber(Thread):
 						self.sub.connect("tcp://" + self.broker + ":" + addr[0])
 
 			string = self.sub.recv()
-			topic, messagedata = string.split()
+			topic, messagedata, time_started = string.split()
 			print (topic, messagedata)
+			time_received = (datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()
+			latency = format((1000 * (float(time_received) - float(time_started))), '.5f')
+			print(topic, messagedata, latency, 'ms')
+			with open("./results/latency_{}.csv".format(topic), "a") as f:
+				f.write(str(latency) + "\n")
 			
 	#for leaving 
 	def close(self):
@@ -135,8 +141,13 @@ class publisher(Thread):
 			#generate a random price
 			price = str(random.randrange(20, 60))
 			#send ticker + price to broker
-			self.pub.send_string("%s %s" % (self.topic, price))
+			#self.pub.send_string("%s %s" % (self.topic, price))
+			#time.sleep(1)
+
+			time_started = (datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()
+			self.pub.send_string("{topic} {price} {time_started}".format(topic=self.topic, price=price, time_started=time_started))
 			time.sleep(1)
+
 
 	def close(self):
 		self.joined = False
