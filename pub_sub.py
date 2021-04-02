@@ -3,6 +3,7 @@ import zmq
 from threading import Thread
 import random
 import time
+import datetime
 from kazoo.client import KazooClient
 from kazoo.client import KazooState
 import logging
@@ -34,8 +35,9 @@ class subscriber(Thread):
 		#flooding connection
 		if self.flood == True:
 			for i in range(1,6):
-				port = str(5558 + i)
+				port = str(5560 + i)
 				self.sub.connect("tcp://127.0.0.1:" + port)
+			print("flooding sub")
 		#connecting tp the broker using zookeeper node on leader broker
 		else:
 			data, stat = self.zk_object.get(self.path) #get port #'s from the leader's zk node
@@ -68,8 +70,13 @@ class subscriber(Thread):
 						self.sub.connect("tcp://" + self.broker + ":" + addr[0])
 
 			string = self.sub.recv()
-			topic, messagedata = string.split()
+			topic, messagedata, time_started = string.split()
 			print (topic, messagedata)
+			time_received = (datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()
+			latency = format((1000 * (float(time_received) - float(time_started))), '.5f')
+			print(topic, messagedata, latency, 'ms')
+			with open("./results/latency_{}.csv".format(topic), "a") as f:
+				f.write(str(latency) + "\n")
 			
 	#for leaving 
 	def close(self):
@@ -96,7 +103,8 @@ class publisher(Thread):
 		self.context = zmq.Context()
 		self.pub = self.context.socket(zmq.PUB)
 		if self.flood == True:
-			self.pub.bind("tcp://127.0.0.1:" + str(5558 + self.id))
+			self.pub.bind("tcp://127.0.0.1:" + str(5560 + self.id))
+			print("flooding pub")
 		#broker approach 
 		else:
 			data, stat = self.zk_object.get(self.path)
@@ -135,8 +143,13 @@ class publisher(Thread):
 			#generate a random price
 			price = str(random.randrange(20, 60))
 			#send ticker + price to broker
-			self.pub.send_string("%s %s" % (self.topic, price))
+			#self.pub.send_string("%s %s" % (self.topic, price))
+			#time.sleep(1)
+
+			time_started = (datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()
+			self.pub.send_string("{topic} {price} {time_started}".format(topic=self.topic, price=price, time_started=time_started))
 			time.sleep(1)
+
 
 	def close(self):
 		self.joined = False
@@ -163,7 +176,7 @@ class listener(Thread):
 		#Flooding version - connect to all pub networks w/o a filter
 		if self.flood == True: 
 			for i in range(1,8):
-				port = str(5558 + i)
+				port = str(5560 + i)
 				sub.connect("tcp://127.0.0.1:" + port)
 				sub.setsockopt_string(zmq.SUBSCRIBE, "")
 		#Broker version - connect w/o filtering
@@ -213,23 +226,23 @@ def main():
 	s1 = subscriber('MSFT', False, '127.0.0.1')
 	s1.start()
 
-	s2 = subscriber('AAPL', False, '127.0.0.1')
-	s2.start()
+	#s2 = subscriber('AAPL', False, '127.0.0.1')
+	#s2.start()
 
-	s3 = subscriber('IBM', False, '127.0.0.1')
-	s3.start()
+	#s3 = subscriber('IBM', False, '127.0.0.1')
+	#s3.start()
 	
 	#we may want to pre-set the stock in a refactor since we'll need a known topic for Assignment 3
 	p1 = publisher(1, False, 'MSFT', '127.0.0.1')
 	p1.start()
 
-	p2 = publisher(2, False, 'AAPL', '127.0.0.1')
-	p2.start()
+	#p2 = publisher(2, False, 'AAPL', '127.0.0.1')
+	#p2.start()
 
-	p3 = publisher(3, False, 'IBM', '127.0.0.1')
-	p3.start()
+	#p3 = publisher(3, False, 'IBM', '127.0.0.1')
+	#p3.start()
 
-	p3.close()
+	#p3.close()
 
 if __name__ == "__main__":
     main()

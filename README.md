@@ -3,27 +3,41 @@
 ## Overview
 In this assignment we will build upon the PUB/SUB middleware from Assignment 1. In order to create a more AVAILABLE system we have used Zookeeper impliment broker redundancy through the use of leader elections.
 
-| Simple Broker Latency                                                                                                    | Complex Broker Latency                                                                                                     | Simple Flooding Latency                                                                                                      | Complex Flooding Latency                                                                                                       |
-|--------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| ![simple_broker](https://github.com/edmasters/single_broker_pub_sub/blob/automated-local-host/results/simple_broker.png) | ![complex_broker](https://github.com/edmasters/single_broker_pub_sub/blob/automated-local-host/results/complex_broker.png) | ![simple flooding](https://github.com/edmasters/single_broker_pub_sub/blob/automated-local-host/results/simple_flooding.png) | ![complex flooding](https://github.com/edmasters/single_broker_pub_sub/blob/automated-local-host/results/complex_flooding.png) |
+| Simple Broker Latency                                                                                                | Complex Broker Latency                                                                                                 | Simple Flooding Latency                                                                                                  | Complex Flooding Latency                                                                                                   |
+|----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| ![simple_broker](https://github.com/CS6381-Ed-Varun/Assignment2/blob/automated-local-host/results/simple_broker.png) | ![complex_broker](https://github.com/CS6381-Ed-Varun/Assignment2/blob/automated-local-host/results/complex_broker.png) | ![simple flooding](https://github.com/CS6381-Ed-Varun/Assignment2/blob/automated-local-host/results/simple_flooding.png) | ![complex flooding](https://github.com/CS6381-Ed-Varun/Assignment2/blob/automated-local-host/results/complex_flooding.png) |
 
 ## Manual Installation
 
 ### Dependencies
-- Java: sudo apt-get install openjdk-9-jre-headless
-- libtools: sudo apt-get install libtool
-- Zookeeper: http://www.gtlib.gatech.edu/pub/apache/zookeeper/ <br/>
-      -Uncompress: tar xvzf zookeeper-'version'.tar.gz
-- Kazoo: pip install python3 Kazoo
-
+- Java:
+```
+$ sudo apt-get install openjdk-9-jre-headless
+```
+- Libtools:
+```
+$ sudo apt-get install libtool
+```
+- Zookeeper:
+```
+$ sudo wget https://downloads.apache.org/zookeeper/stable/apache-zookeeper-3.6.2.tar.gz
+```
+- Uncompress: 
+```
+$ sudo tar xvzf apache-zookeeper-3.6.2.tar.gz
+```
+- Kazoo: 
+```
+$ pip install kazoo
+```
 
 ## Before running the scripts
 
-- Start the ZooKeeper server
+- Start the ZooKeeper server (Identify config directory)
 ```
-sudo bin/zkServer.sh start
+sudo bin/zkServer.sh start ./conf/zoo.cfg
 ```
-
+Note: Be sure to stop any instances of ZooKeeper before running again
 
 ## Mininet Emulation
 Assign the various hosts as either publisher or subscriber. 
